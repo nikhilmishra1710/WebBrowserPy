@@ -1,0 +1,37 @@
+[project]
+name = "webbrowser-py"
+version = "0.1.0"
+description = "Web Browser made by following Web Browser Engineering"
+authors = [{ name = "nikhilmishra1710", email = "nikhilmishra1710@gmail.com" }]
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = []
+
+[tool.poetry]
+packages = [{ include = "webbrowser_py", from = "src" }]
+
+
+[tool.poetry.group.dev.dependencies]
+mypy = "^1.16.1"
+black = "^25.1.0"
+ruff = "^0.12.2"
+pytest = "^8.4.1"
+isort = "^6.0.1"
+
+[tool.poetry.scripts]
+dev = "src.webbrowser_py:main"
+test = "tests:main"
+typeCheck = "src.scripts.cli:type_check"
+lint = "src.scripts.cli:lint"
+lint-fix = "src.scripts.cli:lint_fix"
+format = "src.scripts.cli:format_code"
+
+[tool.mypy]
+ignore_missing_imports = true 
+
+[tool.black]
+skip-magic-trailing-comma = true
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
