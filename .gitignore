@@ -1,0 +1,18 @@
+# .gitignore for Python projects
+*.pyc
+*.pyo
+*.pyd
+*.pdb
+*.so
+*.egg
+*.egg-info
+*.dist-info
+*.db
+*.sqlite3
+*.log
+*.swp
+*.bak
+*.tmp
+.mypy_cache/
+__pycache__/
+.ruff_cache/
