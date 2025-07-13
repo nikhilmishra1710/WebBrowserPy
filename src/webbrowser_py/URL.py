@@ -1,6 +1,7 @@
 import socket
 import ssl
 
+
 class URL:
     def __init__(self, url: str):
         self.scheme, url = url.split("://", 1)

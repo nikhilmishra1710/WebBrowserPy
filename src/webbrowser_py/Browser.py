@@ -1,7 +1,9 @@
 import tkinter
-import src.webbrowser_py.utils as utils
-from src.webbrowser_py.Constants import Constants
-from src.webbrowser_py.URL import URL
+from typing import List, Tuple
+
+import webbrowser_py.utils as utils
+from webbrowser_py.Constants import Constants
+from webbrowser_py.URL import URL
 
 WIDTH, HEIGHT = 800, 600
 
@@ -15,14 +17,16 @@ class Browser:
         )
         self.scroll = 0
         self.window.bind("<Down>", self.on_scroll)
-        self.layout_list = []
+        self.window.bind("<Up>", self.on_scroll)
+        self.layout_list: List[Tuple[int, int, str, tkinter.font.Font]] = []
         self.canvas.pack()
     
     def on_scroll(self, event: tkinter.Event) -> None:
         if event.keysym == "Down":
             self.scroll += Constants.VSTEP
         elif event.keysym == "Up":
-            self.scroll -= Constants.VSTEP
+            if self.scroll > 0:
+                self.scroll -= Constants.VSTEP
         self.draw()
     
     def draw(self) -> None:
@@ -36,11 +40,11 @@ class Browser:
                 x, y - self.scroll, text=ch
             )
             
-        
     def load(self, url: URL) -> None:
         body: str = url.request()
-        text: str = utils.lex(body)
-        self.layout_list = utils.layout(text)
+        tokens: List[utils.Text | utils.Tag] = utils.lex(body)
+        self.layout_list = utils.Layout(tokens).display_list
+        self.window.title(f"Web Browser - {url.scheme}://{url.host}{url.path}")
         self.draw()
         tkinter.mainloop()
         
