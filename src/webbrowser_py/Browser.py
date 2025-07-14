@@ -15,10 +15,10 @@ class Browser:
             width=Constants.BROWSER_WIDTH,
             height=Constants.BROWSER_HEIGHT,
         )
-        self.scroll = 0
+        self.scroll: float = 0
         self.window.bind("<Down>", self.on_scroll)
         self.window.bind("<Up>", self.on_scroll)
-        self.layout_list: List[Tuple[int, int, str, tkinter.font.Font]] = []
+        self.layout_list: List[Tuple[float, float, str, tkinter.font.Font]] = []
         self.canvas.pack()
     
     def on_scroll(self, event: tkinter.Event) -> None:
@@ -31,13 +31,13 @@ class Browser:
     
     def draw(self) -> None:
         self.canvas.delete("all")
-        for x, y, ch in self.layout_list:
+        for x, y, ch, font in self.layout_list:
             if y > self.scroll + Constants.BROWSER_HEIGHT:
                 continue
             if y + Constants.VSTEP < self.scroll:
                 continue
             self.canvas.create_text(
-                x, y - self.scroll, text=ch
+                x, y - self.scroll, text=ch, font=font, anchor=tkinter.NW
             )
             
     def load(self, url: URL) -> None:

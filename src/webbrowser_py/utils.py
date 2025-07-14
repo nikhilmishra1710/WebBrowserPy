@@ -1,4 +1,5 @@
 import tkinter
+import tkinter.font
 from typing import List, Literal, Tuple
 
 from webbrowser_py.Constants import Constants
@@ -14,12 +15,13 @@ class Tag:
 
 class Layout:
     def __init__(self, tokens: List[Text | Tag]) -> None:
-        self.display_list: List[Tuple[int, int, str, tkinter.font.Font]] = []
+        self.display_list: List[Tuple[float, float, str, tkinter.font.Font]] = []
         self.cursor_x = Constants.HSTEP
         self.cursor_y = Constants.VSTEP
         self.size = Constants.FONT_SIZE
         self.weight: Literal['normal', 'bold'] = "normal"
         self.style: Literal['roman', 'italic'] = "roman"
+        self.line = []
 
         for token in tokens:
             self.token_handler(token)
@@ -31,20 +33,39 @@ class Layout:
         elif isinstance(token, Tag):
             self.tag_handler(token)
     
+    def flush(self) -> None:
+        if not self.line:
+            return
+
+        metrics = [font.metrics() for _, _, font in self.line]
+        max_ascent = max([metric["ascent"] for metric in metrics])
+        baseline = self.cursor_y + max_ascent * 1.25
+        
+        for x, word, font in self.line:
+            y = baseline - font.metrics("ascent")
+            self.display_list.append((x, y, word, font))
+            
+        max_descent = max([metric["descent"] for metric in metrics])
+        self.cursor_y = baseline + max_descent * 1.25
+        self.cursor_x = Constants.HSTEP
+        self.line = []        
+    
     def text_handler(self, word: str) -> None:
         font = tkinter.font.Font(
-            size=16,
+            size=self.size,
             weight=self.weight,
-            slant=self.style,
+            slant=self.style
         )
         
         w = font.measure(word)
-        self.display_list.append((self.cursor_x, self.cursor_y, word, font))
+        #self.display_list.append((self.cursor_x, self.cursor_y, word, font))
+        self.line.append((self.cursor_x, word, font))
         self.cursor_x += w + font.measure(" ")
         
         if self.cursor_x + w > Constants.BROWSER_WIDTH - Constants.HSTEP:
-            self.cursor_y += font.metrics("linespace") * 1.25
-            self.cursor_x = Constants.HSTEP
+            print("Flushing line due to width limit")
+            print(f"{self.line}")
+            self.flush()
             
     def tag_handler(self, tag: Tag) -> None:
         if tag.name == "i":
@@ -55,6 +76,10 @@ class Layout:
             self.style = "roman"
         elif tag.name == "/b":
             self.weight = "normal"
+        elif tag.name == "small":
+            self.size -= 2
+        elif tag.name == "/small":
+            self.size += 2
     
 def lex(body: str) -> List[Text | Tag]:
     out: List[Text | Tag] = []
